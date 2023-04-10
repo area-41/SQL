@@ -1,0 +1,243 @@
+-- ANALISE
+		
+SELECT * FROM menu_pizzas 
+
+SELECT * FROM ref_entregador
+
+SELECT * FROM ref_pagamento
+
+SELECT * FROM entrega
+
+SELECT * FROM entregador
+
+SELECT * FROM pagamento
+
+-- 3) Quantos pedidos teve cada um dos tipos de produto (salgadas, doces e refrigerantes)?
+SELECT 
+	B.tipo_produto AS "Tipo de Pizza",
+	COUNT(A.entrega_id) AS "Número de Pedidos"
+FROM entrega A
+LEFT JOIN menu_pizzas B ON B.pizza_id = A.pizza_id
+GROUP BY B.tipo_produto
+ORDER BY B.tipo_produto DESC;
+
+
+--- total de pedidos
+SELECT COUNT(DISTINCT entrega_id) FROM entrega
+
+
+-- 4) Monte uma tabela com o total gasto em cada um dos pedidos
+SELECT
+	E.entrega_id AS "Pedido",
+	SUM(M.preco*E.quantidade) AS "Total em R$"
+FROM entrega E
+LEFT JOIN menu_pizzas M ON M.pizza_id = E.pizza_id
+GROUP BY entrega_id
+ORDER BY entrega_id;
+
+
+-- 5) Monte uma tabela com ranqueamento dos produtos mais vendidos em valor (utilize os nomes!)
+
+SELECT
+	M.pizza_id AS "ID - Produto",
+	M.nome_produto AS "Produto",
+	COUNT(E.pizza_id) AS "Quantidade",
+	SUM(E.quantidade *M.preco) AS "Total em R$"
+FROM entrega E
+LEFT JOIN menu_pizzas M ON M.pizza_id = E.pizza_id
+GROUP BY 1
+ORDER BY 4 DESC;
+
+
+-- 6) Quanto foi arrecadado em cada tipo de pagamento em valor (App e na entrega)?
+SELECT 
+	F.forma_pagamento AS "Forma Pagamento",
+	SUM(M.preco*E.quantidade) AS "Total faturado em R$"
+FROM entrega E
+LEFT JOIN pagamento P ON E.entrega_id = P.entrega_id
+LEFT JOIN ref_pagamento F ON P.pagamento_id = F.pagamento_id
+LEFT JOIN menu_pizzas M ON E.pizza_id = M.pizza_id
+GROUP BY F.forma_pagamento
+ORDER BY 2 DESC;
+
+
+-- 7) Monte uma tabela com o nome dos entregadores(as) e a quantidade de pedidos
+-- entregues por cada um
+SELECT 	
+	 R.nome_entregador AS "Entregador",
+	COUNT(DISTINCT entrega_id) AS "Entregas"
+FROM entregador E
+LEFT JOIN ref_entregador R ON E.entregador_id = R.entregador_id
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+-- 8) Quais são as principais pizzas salgadas vendidas pelo App em quantidade?
+-- Monte uma tabela com o ranqueamento delas pela quantidade
+SELECT 
+	M.nome_produto AS "Produto",
+	F.forma_pagamento AS "Forma pagamento",
+	COUNT(DISTINCT E.entrega_id) AS "Pedidos",
+	SUM(E.quantidade) AS "Quantidade"
+FROM entrega E
+LEFT JOIN menu_pizzas M ON E.pizza_id = M.pizza_id
+LEFT JOIN pagamento P ON E.entrega_id = P.entrega_id
+LEFT JOIN ref_pagamento F ON P.pagamento_id = F.pagamento_id
+WHERE tipo_produto = 'Salgadas' AND forma_pagamento = 'App'
+GROUP BY 1, 2
+ORDER BY 4 DESC;
+
+
+-- 9) Quantos pedidos teve em cada forma de pagamento (pelo App e na entrega)?
+SELECT 
+	F.forma_pagamento AS "Forma Pagamento",
+	COUNT(DISTINCT E.entrega_id) AS "Pedidos"
+FROM entrega E
+LEFT JOIN pagamento P ON E.entrega_id = P.entrega_id
+LEFT JOIN ref_pagamento F ON P.pagamento_id = F.pagamento_id
+LEFT JOIN menu_pizzas M ON E.pizza_id = M.pizza_id
+GROUP BY F.forma_pagamento
+ORDER BY 2 DESC;
+
+
+-- 10) Monte uma tabela de comissão para os entregadores, onde as colunas serão
+-- nome do entregador, forma de pagamento e comissão (que será paga ao entregador)
+-- Regra da comissão: pedidos pelo App: 10% comissão, na entrega: 5% comissão
+-- ARREDONDE PARA DUAS CASAS DECIMAIS
+
+--- Resposta professor
+SELECT 
+	A.nome_entregador AS "Entregador",
+	D.forma_pagamento AS "Forma de Pagamento",	
+	SUM(CASE WHEN D.forma_pagamento = 'App' THEN ROUND(F.preco*E.quantidade*0.1, 2)
+		WHEN D.forma_pagamento = 'Na Entrega' THEN ROUND(F.preco*E.quantidade*0.05, 2) ELSE 0 END) AS "Comissão em R$"
+FROM ref_entregador AS A
+LEFT JOIN entregador AS B ON A.entregador_id = B.entregador_id 
+LEFT JOIN pagamento AS C ON B.entrega_id = C.entrega_id  
+LEFT JOIN ref_pagamento AS D ON C.pagamento_id = D.pagamento_id 
+LEFT JOIN entrega AS E ON C.entrega_id = E.entrega_id
+LEFT JOIN menu_pizzas AS F ON E.pizza_id = F.pizza_id
+GROUP BY 1,2
+ORDER BY 1;
+
+
+--- RESPOSTA 2 -> os valores sao os mesmos, mas acredito que a disposicao assim fica mais facil de leitura
+SELECT
+	R.nome_entregador AS "Entregador",
+	COUNT(DISTINCT c.entrega_id) AS "Entregas",
+	SUM(CASE WHEN F.pagamento_id = 1 THEN ROUND(quantidade*preco*0.1, 2) ELSE 0 END) AS "Comissão App",
+	SUM(CASE WHEN F.pagamento_id = 2 THEN ROUND(quantidade*preco*0.05, 2) ELSE 0 END) AS "Comissão na Entrega"
+FROM entregador E
+LEFT JOIN ref_entregador R ON E.entregador_id = R.entregador_id
+LEFT JOIN entrega C ON E.entrega_id = C.entrega_id	
+LEFT JOIN pagamento B ON E.entrega_id = B.entrega_id
+LEFT JOIN ref_pagamento F ON B.pagamento_id = F.pagamento_id
+LEFT JOIN menu_pizzas D ON C.pizza_id = D.pizza_id
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+
+---confirmacao da RESPOSTA 
+---apenas 47 pedidos, cada entregador entregou 1 qtd de pedidos e o valor total da entrega tendo 10% no app e 5% na entrega
+SELECT 
+	RE.nome_entregador,
+	COUNT(DISTINCT D.entrega_id) AS "Qtd pedidos",
+	D.entrega_id AS "Pedido",
+	SUM(D.quantidade*M.preco) AS "Total da Entrega",
+	SUM(CASE WHEN P.pagamento_id = 1 THEN ROUND((D.quantidade*M.preco)*0.1, 2) ELSE 0 END) AS "Comissão App",
+	SUM(CASE WHEN P.pagamento_id = 2 THEN ROUND((D.quantidade*M.preco)*0.05, 2) ELSE 0 END) AS "Comissão Na entrega"
+FROM entregador E
+LEFT JOIN ref_entregador RE ON RE.entregador_id = E.entregador_id 
+LEFT JOIN pagamento P ON P.entrega_id = E.entrega_id
+LEFT JOIN entrega D ON D.entrega_id = E.entrega_id 
+LEFT JOIN menu_pizzas M ON M.pizza_id = D.pizza_id
+GROUP BY 1,3
+ORDER BY 3;
+
+
+
+
+SELECT 
+	A.nome_entregador AS "Entregador",
+	D.forma_pagamento AS "Forma de Pagamento",	
+	CASE WHEN D.forma_pagamento = 'App' THEN ROUND(SUM(F.preco*E.quantidade)*0.1, 2)
+	 	 WHEN D.forma_pagamento = 'Na Entrega' THEN ROUND(SUM(F.preco*E.quantidade)*0.05, 2) END AS "Comissão em R$"
+FROM ref_entregador AS A
+LEFT JOIN entregador AS B ON A.entregador_id = B.entregador_id 
+LEFT JOIN pagamento AS C ON B.entrega_id = C.entrega_id  
+LEFT JOIN ref_pagamento AS D ON C.pagamento_id = D.pagamento_id 
+LEFT JOIN entrega AS E ON C.entrega_id = E.entrega_id
+LEFT JOIN menu_pizzas AS F ON E.pizza_id = F.pizza_id
+GROUP BY 1, 2
+ORDER BY 1;
+
+
+
+
+----Estudos
+
+
+----- TODAS as tabelas
+SELECT
+	* 
+FROM entrega e 
+LEFT JOIN menu_pizzas mp ON mp.pizza_id = e.pizza_id 
+LEFT JOIN entregador e2 ON e2.entrega_id = e.entrega_id 
+LEFT JOIN pagamento p ON p.entrega_id = e.entrega_id 
+LEFT JOIN ref_entregador re ON re.entregador_id = e2.entregador_id
+LEFT JOIN ref_pagamento rp ON rp.pagamento_id = p.pagamento_id 
+GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+ORDER BY 1;
+
+
+---- Apenas as informacoes importantes
+SELECT
+	e.entrega_id,
+	e.quantidade,
+	mp.nome_produto,
+	mp.tipo_produto,
+	mp.preco,
+	re.nome_entregador,
+	rp.forma_pagamento 
+FROM entrega e 
+LEFT JOIN menu_pizzas mp ON mp.pizza_id = e.pizza_id 
+LEFT JOIN entregador e2 ON e2.entrega_id = e.entrega_id 
+LEFT JOIN pagamento p ON p.entrega_id = e.entrega_id 
+LEFT JOIN ref_entregador re ON re.entregador_id = e2.entregador_id
+LEFT JOIN ref_pagamento rp ON rp.pagamento_id = p.pagamento_id 
+GROUP BY 1,2,3,4,5,6,7
+ORDER BY 1;
+
+---- VERIFICAR o CAMINHO dos processos
+EXPLAIN 
+SELECT
+	e.entrega_id,
+	e.quantidade,
+	mp.nome_produto,
+	mp.tipo_produto,
+	mp.preco,
+	re.nome_entregador,
+	rp.forma_pagamento 
+FROM entrega e 
+LEFT JOIN menu_pizzas mp ON mp.pizza_id = e.pizza_id 
+LEFT JOIN entregador e2 ON e2.entrega_id = e.entrega_id 
+LEFT JOIN pagamento p ON p.entrega_id = e.entrega_id 
+LEFT JOIN ref_entregador re ON re.entregador_id = e2.entregador_id
+LEFT JOIN ref_pagamento rp ON rp.pagamento_id = p.pagamento_id 
+GROUP BY 1,2,3,4,5,6,7
+ORDER BY 1;
+
+SELECT * FROM menu_pizzas 
+
+SELECT * FROM ref_entregador
+
+SELECT * FROM ref_pagamento
+
+SELECT * FROM entrega
+
+SELECT * FROM entregador
+
+SELECT * FROM pagamento
+
+
