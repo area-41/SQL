@@ -48,3 +48,27 @@
     INNER JOIN InvoiceLine il
     INNER JOIN Customer c ON c.CustomerId = i.CustomerId
     GROUP BY 1 ORDER BY Record;
+
+
+    -- DISCRETIZAÇÃO  -----****
+    SELECT e.Name,
+        CASE
+            WHEN Salary > 39000 THEN "Executivo"
+            WHEN Salary > 29000 THEN "Sênior"
+            WHEN Salary > 19000 THEN "Pleno"
+            WHEN Salary > 9000 THEN "Júnior"
+            WHEN Salary > 900 THEN "Estagiário"
+            ELSE "NA"
+        END as Niveis_Empregados
+        FROM employee e 
+        ORDER BY Niveis_Empregados;
+
+
+    -- PADRONIZAÇÃO   -----****
+    SELECT Fname, Sex, 
+        CASE
+            WHEN Sex = "m" THEN "M"
+            WHEN Sex = "f" THEN "F"    
+            ELSE Sex
+        END as Gender
+        FROM employee e;
