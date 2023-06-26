@@ -14,6 +14,17 @@
     ORDER BY Records ASC LIMIT 1;
 
 
+    -- selecionar distinto
+    SELECT DISTINCT column_name
+    FROM table_name
+    WHERE FirstName <> 'Teste' -- not equal
+    ORDER BY 1 ASC;
+
+
+    SELECT * FROM Orders
+    WHERE OrderDate BETWEEN '1996-07-01' AND '1996-07-31';
+
+
     -- caracterizando os registros
     SELECT a2.ArtistId, a2.Name, count(*) as Records 
     FROM Album a
