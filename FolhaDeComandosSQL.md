@@ -31,6 +31,16 @@
     WHERE OrderDate BETWEEN '1996-07-01' AND '1996-07-31';
 
 
+    SELECT * FROM Persons
+    WHERE LastName IN ('Hansen','Pettersen', 'Josifreudo', 'EDemais');
+
+
+    -- utilizando apelidos
+    SELECT po.OrderID, p.LastName, p.FirstName
+    FROM Persons AS p, Product_Orders AS po  -- importante para vacilitar
+    WHERE p.LastName='Hansen' AND p.FirstName='Ola'
+
+
     -- caracterizando os registros
     SELECT a2.ArtistId, a2.Name, count(*) as Records 
     FROM Album a
