@@ -1,5 +1,11 @@
 # Exemplos SQL
 
+## The Data Manipulation Language (DML)
+##### --|  SELECT  |--|  UPDATE  |--|  DELETE  |--|  INSERT INTO  |--</br>
+
+
+
+
     SELECT count(*) FROM Album a WHERE Column1 is NOT NULL;
 
     SELECT AlbumId, Title 
@@ -83,3 +89,10 @@
             ELSE Sex
         END as Gender
         FROM employee e;
+
+
+
+### Data Definition Language (DDL)
+##### --|  CREATE DATABASE  |--|  ALTER DATABASE  |--|  CREATE TABLE  |--|  ALTER TABLE  |--|  DROP TABLE |--|  CREATE INDEX  |--|  DROP INDEX  |--</br>
+
+
