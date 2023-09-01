@@ -1,11 +1,11 @@
-# Exemplos SQL
+# Comandos SQL
 
 ## The Data Manipulation Language (DML)
 ##### --|  SELECT  |--|  UPDATE  |--|  DELETE  |--|  INSERT INTO  |--</br>
 
 
 
-
+#### SELECT
     SELECT count(*) FROM Album a WHERE Column1 is NOT NULL;
 
     SELECT AlbumId, Title 
@@ -19,7 +19,7 @@
     GROUP BY 1 
     ORDER BY Records ASC LIMIT 1;
 
-
+#### SELECT DISTINCT
     -- selecionar distinto
     SELECT DISTINCT column_name
     FROM table_name
@@ -35,13 +35,13 @@
     WHERE LastName IN ('Hansen','Pettersen', 'Josifreudo', 'EDemais');
 
 
-    -- utilizando apelidos
+ #### Utilizando apelidos
     SELECT po.OrderID, p.LastName, p.FirstName
     FROM Persons AS p, Product_Orders AS po  -- importante para vacilitar
     WHERE p.LastName='Hansen' AND p.FirstName='Ola'
 
 
-    -- caracterizando os registros
+ #### Caracterizando os registros
     SELECT a2.ArtistId, a2.Name, count(*) as Records 
     FROM Album a
     INNER JOIN Artist a2
@@ -49,15 +49,15 @@
     ORDER BY Records LIMIT 1;
 
     
-    -- procurar por assunto
+#### Procurar por assunto
     SELECT count(*) FROM Customer c WHERE Address like '%Broadway%';
 
 
-    -- verificar os dados
+#### Verificar os dados
     SELECT count(*) FROM Customer c WHERE Company IS NOT NULL;
 
 
-    -- verificar se existe em 2 tabelas
+#### Verificar se existe em 2 tabelas
     SELECT c.FirstName 
     FROM Customer c 
     WHERE Company IS NULL AND c.FirstName IN 
@@ -76,7 +76,7 @@
     INNER JOIN Customer c ON c.CustomerId = i.CustomerId
     GROUP BY 1 ORDER BY Record;
 
-
+#### DISCRETIZAÇÃO
     -- DISCRETIZAÇÃO  -----****
     SELECT e.Name,
         CASE
@@ -91,7 +91,7 @@
         ORDER BY Niveis_Empregados;
 
 
-    -- PADRONIZAÇÃO   -----****
+#### PADRONIZAÇÃO 
     SELECT Fname, Sex, 
         CASE
             WHEN Sex = "m" THEN "M"
