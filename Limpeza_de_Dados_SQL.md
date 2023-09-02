@@ -2,8 +2,21 @@
 
 #### Consultas e funções que podem ser usadas em SQL para limpar e transformar os dados e prepará-los para a análise.
 
+--> Deduplicar dados usando comandos como DISTINCTe COUNT + WHERE.
+
 #### DISTINCT
     SELECT DISTINCT customer_id FROM customer_data.customer_address;
+
+
+--> Manipular dados de string com TRIM(), SUBSTR, e LENGTH.
+
+#### TRIM -- remover todos os espaços extras na coluna
+    UPDATE cars.car_info
+    SET drive_wheels = TRIM(drive_wheels)
+    WHERE num_of_cylinders = "two" ;
+
+#### SUBSTR
+    SELECT first_name, SUBSTR(surname, 0, 4) AS sobrenome_abreviado FROM pessoa;
     
 #### LENGTH
     SELECT country FROM customer_data.customer_address WHERE LENGTH(country) > 2;
@@ -32,18 +45,11 @@
 #### DELETE
     DELETE cars.car_info WHERE compression_ratio = 70;
 
-
-#### TRIM -- remover todos os espaços extras na coluna
-    UPDATE cars.car_info
-    SET drive_wheels = TRIM(drive_wheels)
-    WHERE num_of_cylinders = "two" ;
-
-
-#### SUBSTR
-    SELECT first_name, SUBSTR(surname, 0, 4) AS sobrenome_abreviado FROM pessoa;
 </br></br>
 
 ## Avançado
+
+--> Alterar os tipos de dados com CAST.
 
 #### CAST -- forçar a transformação em um determinado TIPO de dado
     SELECT CAST(purchase_price AS FLOAT64)
