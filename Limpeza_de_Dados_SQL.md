@@ -45,6 +45,15 @@
 #### DELETE
     DELETE cars.car_info WHERE compression_ratio = 70;
 
+
+#### CASE WHEN THEN
+    SELECT id_cliente, 
+      CASE 
+        WHEN nome = 'Magnolia Craig' THEN 'Magnolhia Creisom'
+        ELSE nome
+        END AS cleaned_name 
+    FROM `industrial-gist-395320.customer_data.customer_address` 
+
 </br></br>
 
 ## Avançado
